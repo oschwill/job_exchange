@@ -1,13 +1,9 @@
 <script setup>
 import NavBar from '@/components/Navbar.vue';
-import Hero from '@/components/Hero.vue';
-import HomeCards from '@/components/HomeCards.vue';
-import JobListings from '@/components/JobListings.vue';
+import { RouterView } from 'vue-router'; // Ist sowas wie Outlet in React
 </script>
 
 <template>
   <NavBar />
-  <Hero />
-  <HomeCards />
-  <JobListings />
+  <RouterView />
 </template>
