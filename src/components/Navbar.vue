@@ -20,7 +20,7 @@ const isActiveLink = (routePath) => {
             <span class="hidden md:block text-white text-2xl font-bold ml-2">Vue Jobs</span>
           </RouterLink>
           <div class="md:ml-auto">
-            <div class="flex space-x-2">
+            <div class="flex space-x-2 items-center">
               <RouterLink
                 to="/"
                 :class="[
@@ -57,6 +57,9 @@ const isActiveLink = (routePath) => {
                 ]"
                 >Add Job</RouterLink
               >
+              <div class="ps-6">
+                <i class="pi pi-globe text-white text-2xl cursor-pointer hover:text-gray-900"></i>
+              </div>
             </div>
           </div>
         </div>

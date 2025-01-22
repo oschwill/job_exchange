@@ -83,6 +83,20 @@
         "contactEmail": "contact@ipsumlorem.com",
         "contactPhone": "555-555-5555"
       }
+    },
+    {
+      "id": "2ec6",
+      "type": "Remote",
+      "title": "trdtrdtrd",
+      "description": "trdt rdtr ",
+      "salary": "$70K - $80K",
+      "location": "trd trd trd",
+      "company": {
+        "name": "trd trdtrd",
+        "description": "trd trd trd ",
+        "contactEmail": "trdtr@trdtrd.de",
+        "contactPhone": "564654564"
+      }
     }
   ]
 }

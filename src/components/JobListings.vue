@@ -2,10 +2,14 @@
 import { RouterLink } from 'vue-router';
 import JobListing from '@/components/JobListing.vue';
 // import jobData from '@/jobs.json';
-import { ref, defineProps, onMounted } from 'vue';
+import { reactive, defineProps, onMounted } from 'vue';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import axios from 'axios';
 
-const jobs = ref([]);
+const state = reactive({
+  jobs: [],
+  isLoading: true,
+});
 
 defineProps({
   limit: Number,
@@ -16,19 +20,13 @@ defineProps({
 });
 
 onMounted(async () => {
-  const fetchUrl = import.meta.env.VITE_FETCH_URL;
-
-  // Stelle sicher, dass die Umgebungsvariable definiert ist
-  if (!fetchUrl) {
-    console.error('URL ist nicht definiert');
-    return;
-  }
-
   try {
-    const response = await axios.get(fetchUrl);
-    jobs.value = response.data;
+    const response = await axios.get('/api/jobs');
+    state.jobs = response.data;
   } catch (error) {
     console.error('Error fetching Data', error);
+  } finally {
+    state.isLoading = false;
   }
 });
 </script>
@@ -36,8 +34,21 @@ onMounted(async () => {
   <section class="bg-blue-50 px-4 py-10">
     <div class="container-xl lg:container m-auto">
       <h2 class="text-3xl font-bold text-green-500 text-center mb-6">Browse Jobs</h2>
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <JobListing v-for="job in jobs.slice(0, limit || jobs.length)" :key="job.id" :job="job" />
+      <div v-if="state.isLoading" class="text-center text-gray-500 py-6">
+        <PulseLoader />
+      </div>
+      <div
+        v-else-if="state.jobs && state.jobs.length > 0"
+        class="grid grid-cols-1 gap-6 md:grid-cols-3"
+      >
+        <JobListing
+          v-for="job in state.jobs.slice(0, limit || state.jobs.length)"
+          :key="job.id"
+          :job="job"
+        />
+      </div>
+      <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <p class="text-center">No Jobs Available</p>
       </div>
     </div>
   </section>
