@@ -85,17 +85,45 @@
       }
     },
     {
-      "id": "2ec6",
-      "type": "Remote",
-      "title": "trdtrdtrd",
+      "type": "Internship",
+      "title": "SUPER NEUER JOB",
       "description": "trdt rdtr ",
-      "salary": "$70K - $80K",
+      "salary": "Over $200K",
       "location": "trd trd trd",
       "company": {
         "name": "trd trdtrd",
         "description": "trd trd trd ",
         "contactEmail": "trdtr@trdtrd.de",
-        "contactPhone": "564654564"
+        "contactPhone": "56465456423"
+      },
+      "id": "2ec6"
+    },
+    {
+      "id": "e6b4",
+      "type": "Full-Time",
+      "title": "Webentwickler",
+      "description": "Super Job",
+      "salary": "$125K - $150K",
+      "location": "München, Deutschland",
+      "company": {
+        "name": "Jo man GmbH",
+        "description": "Ja wir sind einfach toll",
+        "contactEmail": "test@test.de",
+        "contactPhone": "1234567890"
+      }
+    },
+    {
+      "id": "0c28",
+      "type": "Full-Time",
+      "title": "ztfztf",
+      "description": "ztztfztf",
+      "salary": "$100K - $125K",
+      "location": "ztfztfztf",
+      "company": {
+        "name": "ztfztf",
+        "description": "ztfztf",
+        "contactEmail": "ztfztfz@tfztf.de",
+        "contactPhone": "4587235685"
       }
     }
   ]

@@ -1,7 +1,9 @@
 <script setup>
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 import axios from 'axios';
+import { jobValidationSchema } from '@/validation/JobValidationSchema';
 
 const router = useRouter();
 
@@ -17,34 +19,57 @@ const form = reactive({
     contactEmail: '',
     contactPhone: '',
   },
+  errors: [],
 });
 
+const toast = useToast();
+
 const handleSubmit = async () => {
-  // Validierung
-
-  // Meldung => Wollen sie wirklich Speichern?
-
-  // Speichern der Form
-  const newJob = {
-    type: form.type,
-    title: form.title,
-    description: form.description,
-    salary: form.salary,
-    location: form.location,
-    company: {
-      name: form.company.name,
-      description: form.company.description,
-      contactEmail: form.company.contactEmail,
-      contactPhone: form.company.contactPhone,
-    },
-  };
-
-  // Daten eintragen
+  form.errors = []; // Resetten
   try {
+    // Validierung
+    await jobValidationSchema.validate(form, { abortEarly: false });
+    // Meldung => Wollen sie wirklich Speichern?
+
+    // Speichern der Form
+    const newJob = {
+      type: form.type,
+      title: form.title,
+      description: form.description,
+      salary: form.salary,
+      location: form.location,
+      company: {
+        name: form.company.name,
+        description: form.company.description,
+        contactEmail: form.company.contactEmail,
+        contactPhone: form.company.contactPhone,
+      },
+    };
+
+    // Daten eintragen
     const response = await axios.post(`/api/jobs/`, newJob);
 
-    router.push(`/jobs/${response.data.id}`);
+    console.log(response);
+
+    if (response.status === 201 && response.statusText === 'Created') {
+      console.log('TEST');
+      toast.clear(); // Alle Error Meldungen die noch aktiv sind clearn
+      toast.success('Job Added Successfully');
+      router.push(`/jobs/${response.data.id}`);
+    }
   } catch (error) {
+    if (error.inner) {
+      error.inner.forEach((err) => {
+        form.errors.push(err.path);
+        toast.error(err.message, {
+          timeout: 15000,
+        });
+      });
+
+      return;
+    }
+
+    toast.error('Job Added Failed');
     // console.error('Error fetching Data', error);
   }
 };
@@ -57,13 +82,12 @@ const handleSubmit = async () => {
           <h2 class="text-3xl text-center font-semibold mb-6">Add Job</h2>
 
           <div class="mb-4">
-            <label for="type" class="block text-gray-700 font-bold mb-2">Job Type</label>
+            <label for="type" class="block text-gray-700 font-bold mb-2">Job Type*</label>
             <select
               v-model="form.type"
               id="type"
               name="type"
               class="border rounded w-full py-2 px-3"
-              required
             >
               <option value="Full-Time">Full-Time</option>
               <option value="Part-Time">Part-Time</option>
@@ -73,37 +97,41 @@ const handleSubmit = async () => {
           </div>
 
           <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Job Listing Name</label>
+            <label class="block text-gray-700 font-bold mb-2">Job Listing Name*</label>
             <input
               v-model="form.title"
               type="text"
               id="name"
               name="name"
-              class="border rounded w-full py-2 px-3 mb-2"
+              :class="`${
+                form.errors.some((e) => e === 'title') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3 mb-2`"
               placeholder="eg. Beautiful Apartment In Miami"
-              required
             />
           </div>
           <div class="mb-4">
-            <label for="description" class="block text-gray-700 font-bold mb-2">Description</label>
+            <label for="description" class="block text-gray-700 font-bold mb-2">Description*</label>
             <textarea
               v-model="form.description"
               id="description"
               name="description"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'description') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               rows="4"
               placeholder="Add any job duties, expectations, requirements, etc"
             ></textarea>
           </div>
 
           <div class="mb-4">
-            <label for="type" class="block text-gray-700 font-bold mb-2">Salary</label>
+            <label for="type" class="block text-gray-700 font-bold mb-2">Salary*</label>
             <select
               v-model="form.salary"
               id="salary"
               name="salary"
-              class="border rounded w-full py-2 px-3"
-              required
+              :class="`${
+                form.errors.some((e) => e === 'salary') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
             >
               <option value="Under $50K">under $50K</option>
               <option value="$50K - $60K">$50 - $60K</option>
@@ -120,41 +148,46 @@ const handleSubmit = async () => {
           </div>
 
           <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2"> Location </label>
+            <label class="block text-gray-700 font-bold mb-2"> Location* </label>
             <input
               v-model="form.location"
               type="text"
               id="location"
               name="location"
-              class="border rounded w-full py-2 px-3 mb-2"
+              :class="`${
+                form.errors.some((e) => e === 'location') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3 mb-2`"
               placeholder="Company Location"
-              required
             />
           </div>
 
           <h3 class="text-2xl mb-5">Company Info</h3>
 
           <div class="mb-4">
-            <label for="company" class="block text-gray-700 font-bold mb-2">Company Name</label>
+            <label for="company" class="block text-gray-700 font-bold mb-2">Company Name*</label>
             <input
               v-model="form.company.name"
               type="text"
               id="company"
               name="company"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.name') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Company Name"
             />
           </div>
 
           <div class="mb-4">
             <label for="company_description" class="block text-gray-700 font-bold mb-2"
-              >Company Description</label
+              >Company Description*</label
             >
             <textarea
               v-model="form.company.description"
               id="company_description"
               name="company_description"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.description') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               rows="4"
               placeholder="What does your company do?"
             ></textarea>
@@ -162,28 +195,31 @@ const handleSubmit = async () => {
 
           <div class="mb-4">
             <label for="contact_email" class="block text-gray-700 font-bold mb-2"
-              >Contact Email</label
+              >Contact Email*</label
             >
             <input
               v-model="form.company.contactEmail"
               type="email"
               id="contact_email"
               name="contact_email"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.contactEmail') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Email address for applicants"
-              required
             />
           </div>
           <div class="mb-4">
             <label for="contact_phone" class="block text-gray-700 font-bold mb-2"
-              >Contact Phone</label
+              >Contact Phone*</label
             >
             <input
               v-model="form.company.contactPhone"
               type="tel"
               id="contact_phone"
               name="contact_phone"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.contactPhone') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Optional phone for applicants"
             />
           </div>
