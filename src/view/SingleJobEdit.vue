@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
+import { jobValidationSchema } from '@/validation/JobValidationSchema';
 
 const router = useRouter();
 const route = useRoute();
@@ -25,37 +26,54 @@ const form = reactive({
     },
   },
   isLoading: true,
+  errors: [],
 });
 
 const toast = useToast();
 
 const handleSubmit = async () => {
-  // Validierung
-
-  // Meldung => Wollen sie wirklich Speichern?
-
-  // Speichern der Form
-  const updatedJob = {
-    type: form.job.type,
-    title: form.job.title,
-    description: form.job.description,
-    salary: form.job.salary,
-    location: form.job.location,
-    company: {
-      name: form.job.company.name,
-      description: form.job.company.description,
-      contactEmail: form.job.company.contactEmail,
-      contactPhone: form.job.company.contactPhone,
-    },
-  };
-
-  // Daten eintragen
+  form.errors = [];
   try {
+    // Validierung
+    await jobValidationSchema.validate(form.job, { abortEarly: false });
+    // Meldung => Wollen sie wirklich Speichern?
+
+    // Speichern der Form
+    const updatedJob = {
+      type: form.job.type,
+      title: form.job.title,
+      description: form.job.description,
+      salary: form.job.salary,
+      location: form.job.location,
+      company: {
+        name: form.job.company.name,
+        description: form.job.company.description,
+        contactEmail: form.job.company.contactEmail,
+        contactPhone: form.job.company.contactPhone,
+      },
+    };
+
+    // Daten eintragen
     const response = await axios.put(`/api/jobs/${jobId}`, updatedJob);
 
-    toast.success('Job Edited Successfully');
-    router.push(`/jobs/${response.data.id}`);
+    console.log(response);
+    if (response.status === 200 && response.statusText === 'OK') {
+      toast.clear(); // Alle Error Meldungen die noch aktiv sind clearn
+      toast.success('Job Edited Successfully');
+      router.push(`/jobs/${response.data.id}`);
+    }
   } catch (error) {
+    if (error.inner) {
+      error.inner.forEach((err) => {
+        form.errors.push(err.path);
+        toast.error(err.message, {
+          timeout: 15000,
+        });
+      });
+
+      return;
+    }
+
     toast.error('Job Edited Failed');
   }
 };
@@ -91,8 +109,9 @@ onMounted(async () => {
               v-model="form.job.type"
               id="type"
               name="type"
-              class="border rounded w-full py-2 px-3"
-              required
+              :class="`${
+                form.errors.some((e) => e === 'type') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
             >
               <option value="Full-Time">Full-Time</option>
               <option value="Part-Time">Part-Time</option>
@@ -108,9 +127,10 @@ onMounted(async () => {
               type="text"
               id="name"
               name="name"
-              class="border rounded w-full py-2 px-3 mb-2"
+              :class="`${
+                form.errors.some((e) => e === 'title') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3 mb-2`"
               placeholder="eg. Beautiful Apartment In Miami"
-              required
             />
           </div>
           <div class="mb-4">
@@ -119,7 +139,9 @@ onMounted(async () => {
               v-model="form.job.description"
               id="description"
               name="description"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'description') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               rows="4"
               placeholder="Add any job duties, expectations, requirements, etc"
             ></textarea>
@@ -131,8 +153,9 @@ onMounted(async () => {
               v-model="form.job.salary"
               id="salary"
               name="salary"
-              class="border rounded w-full py-2 px-3"
-              required
+              :class="`${
+                form.errors.some((e) => e === 'salary') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
             >
               <option value="Under $50K">under $50K</option>
               <option value="$50K - $60K">$50 - $60K</option>
@@ -155,9 +178,10 @@ onMounted(async () => {
               type="text"
               id="location"
               name="location"
-              class="border rounded w-full py-2 px-3 mb-2"
+              :class="`${
+                form.errors.some((e) => e === 'location') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3 mb-2`"
               placeholder="Company Location"
-              required
             />
           </div>
 
@@ -170,7 +194,9 @@ onMounted(async () => {
               type="text"
               id="company"
               name="company"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.name') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Company Name"
             />
           </div>
@@ -183,7 +209,9 @@ onMounted(async () => {
               v-model="form.job.company.description"
               id="company_description"
               name="company_description"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.description') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               rows="4"
               placeholder="What does your company do?"
             ></textarea>
@@ -198,9 +226,10 @@ onMounted(async () => {
               type="email"
               id="contact_email"
               name="contact_email"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.contactEmail') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Email address for applicants"
-              required
             />
           </div>
           <div class="mb-4">
@@ -212,7 +241,9 @@ onMounted(async () => {
               type="tel"
               id="contact_phone"
               name="contact_phone"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'company.contactPhone') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
               placeholder="Optional phone for applicants"
             />
           </div>

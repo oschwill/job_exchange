@@ -15,18 +15,18 @@
       "id": "1"
     },
     {
-      "id": "2",
-      "title": "Front-End Engineer (Vue)",
       "type": "Full-Time",
+      "title": "Front-End Engineer (Vue)",
       "description": "Join our team as a Front-End Developer in sunny Miami, FL. We are looking for a motivated individual with a passion for crafting beautiful and responsive web applications. Experience with UI/UX design principles and a strong attention to detail are highly desirable.",
-      "location": "Miami, FL",
       "salary": "$70K - $80K",
+      "location": "Miami, FL",
       "company": {
-        "name": "Veneer Solutions",
+        "name": "Veneer Solutions GmbH",
         "description": "Veneer Solutions is a creative agency specializing in digital design and development. Our team is dedicated to pushing the boundaries of creativity and innovation to deliver exceptional results for our clients.",
         "contactEmail": "contact@loremipsum.com",
-        "contactPhone": "555-555-5555"
-      }
+        "contactPhone": "5555555555"
+      },
+      "id": "2"
     },
     {
       "id": "3",
@@ -110,20 +110,6 @@
         "description": "Ja wir sind einfach toll",
         "contactEmail": "test@test.de",
         "contactPhone": "1234567890"
-      }
-    },
-    {
-      "id": "0c28",
-      "type": "Full-Time",
-      "title": "ztfztf",
-      "description": "ztztfztf",
-      "salary": "$100K - $125K",
-      "location": "ztfztfztf",
-      "company": {
-        "name": "ztfztf",
-        "description": "ztfztf",
-        "contactEmail": "ztfztfz@tfztf.de",
-        "contactPhone": "4587235685"
       }
     }
   ]

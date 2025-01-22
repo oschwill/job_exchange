@@ -70,7 +70,6 @@ const handleSubmit = async () => {
     }
 
     toast.error('Job Added Failed');
-    // console.error('Error fetching Data', error);
   }
 };
 </script>
@@ -87,7 +86,9 @@ const handleSubmit = async () => {
               v-model="form.type"
               id="type"
               name="type"
-              class="border rounded w-full py-2 px-3"
+              :class="`${
+                form.errors.some((e) => e === 'type') ? 'border-red-500' : ''
+              } border rounded w-full py-2 px-3`"
             >
               <option value="Full-Time">Full-Time</option>
               <option value="Part-Time">Part-Time</option>
